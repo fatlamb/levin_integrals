@@ -1,0 +1,251 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7424,        241]
+NotebookOptionsPosition[      6757,        213]
+NotebookOutlinePosition[      7114,        229]
+CellTagsIndexPosition[      7071,        226]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"w", "=", 
+   RowBox[{"{", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{"l", ",", 
+        RowBox[{"\[Alpha]", " ", "k"}]}], "]"}], 
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{"l", ",", 
+        RowBox[{"\[Beta]", " ", "k"}]}], "]"}]}], ",", "\[IndentingNewLine]", 
+     
+     RowBox[{
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{
+        RowBox[{"l", "+", "1"}], ",", 
+        RowBox[{"\[Alpha]", " ", "k"}]}], "]"}], 
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{"l", ",", 
+        RowBox[{"\[Beta]", " ", "k"}]}], "]"}]}], ",", "\[IndentingNewLine]", 
+     
+     RowBox[{
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{"l", ",", 
+        RowBox[{"\[Alpha]", " ", "k"}]}], "]"}], 
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{
+        RowBox[{"l", "+", "1"}], ",", 
+        RowBox[{"\[Beta]", " ", "k"}]}], "]"}]}], ",", "\[IndentingNewLine]", 
+     
+     RowBox[{
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{
+        RowBox[{"l", "+", "1"}], ",", 
+        RowBox[{"\[Alpha]", " ", "k"}]}], "]"}], 
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{
+        RowBox[{"l", "+", "1"}], ",", 
+        RowBox[{"\[Beta]", " ", "k"}]}], "]"}]}]}], "\[IndentingNewLine]", 
+    "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.708355057251967*^9, 3.708355092232007*^9}, {
+  3.708355354406354*^9, 3.708355357279633*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"dw", "=", 
+   RowBox[{
+    RowBox[{"D", "[", 
+     RowBox[{"w", ",", "k"}], "]"}], "//", "FullSimplify"}]}], ";"}]], "Input",\
+
+ CellChangeTimes->{{3.708355094882723*^9, 3.7083551131332808`*^9}, {
+  3.7083553395849123`*^9, 3.70835535875735*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"A", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"2", 
+        RowBox[{"l", "/", "k"}]}], ",", 
+       RowBox[{"-", "\[Alpha]"}], ",", 
+       RowBox[{"-", "\[Beta]"}], ",", "0"}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{"\[Alpha]", ",", 
+       RowBox[{
+        RowBox[{"-", "2"}], "/", "k"}], ",", "0", ",", 
+       RowBox[{"-", "\[Beta]"}]}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{"\[Beta]", ",", "0", ",", 
+       RowBox[{
+        RowBox[{"-", "2"}], "/", "k"}], ",", 
+       RowBox[{"-", "\[Alpha]"}]}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", " ", "\[Beta]", ",", "\[Alpha]", ",", 
+       RowBox[{
+        RowBox[{"-", "2"}], 
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"l", "+", "2"}], ")"}], "/", "k"}]}]}], "}"}]}], "}"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.708355182186759*^9, 3.708355294102736*^9}, {
+  3.708355327601626*^9, 3.7083553519306393`*^9}, {3.708355401361713*^9, 
+  3.708355406065926*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"dw", "==", 
+   RowBox[{"A", ".", "w"}]}], "//", "FullSimplify"}]], "Input",
+ CellChangeTimes->{{3.708355269090708*^9, 3.708355275656443*^9}, {
+  3.708355334077776*^9, 3.7083553603121347`*^9}}],
+
+Cell[BoxData["True"], "Output",
+ CellChangeTimes->{{3.7083552729156446`*^9, 3.7083552950478687`*^9}, {
+   3.7083553290631847`*^9, 3.708355360751916*^9}, 3.708355407256962*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"A", "//", "MatrixForm"}]], "Input",
+ CellChangeTimes->{{3.708355366408845*^9, 3.708355367875701*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  RowBox[{"(", "\[NoBreak]", GridBox[{
+     {
+      FractionBox[
+       RowBox[{"2", " ", "l"}], "k"], 
+      RowBox[{"-", "\[Alpha]"}], 
+      RowBox[{"-", "\[Beta]"}], "0"},
+     {"\[Alpha]", 
+      RowBox[{"-", 
+       FractionBox["2", "k"]}], "0", 
+      RowBox[{"-", "\[Beta]"}]},
+     {"\[Beta]", "0", 
+      RowBox[{"-", 
+       FractionBox["2", "k"]}], 
+      RowBox[{"-", "\[Alpha]"}]},
+     {"0", "\[Beta]", "\[Alpha]", 
+      RowBox[{"-", 
+       FractionBox[
+        RowBox[{"2", " ", 
+         RowBox[{"(", 
+          RowBox[{"2", "+", "l"}], ")"}]}], "k"]}]}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Center}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}},
+    GridBoxSpacings->{"Columns" -> {
+        Offset[0.27999999999999997`], {
+         Offset[0.7]}, 
+        Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+        Offset[0.2], {
+         Offset[0.4]}, 
+        Offset[0.2]}, "RowsIndexed" -> {}}], "\[NoBreak]", ")"}],
+  Function[BoxForm`e$, 
+   MatrixForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{3.708355368039176*^9, 3.708355408324966*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"a", "=", "1.0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"b", "=", "10.0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Alpha]", "=", "0.01"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Beta]", "=", "10.0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"l", "=", "10"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ans", "=", 
+   RowBox[{"NIntegrate", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"k", "^", "6"}], 
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{"l", ",", 
+        RowBox[{"\[Alpha]", " ", "k"}]}], "]"}], 
+      RowBox[{"SphericalBesselJ", "[", 
+       RowBox[{"l", ",", 
+        RowBox[{"\[Beta]", " ", "k"}]}], "]"}]}], ",", 
+     RowBox[{"{", 
+      RowBox[{"k", ",", "a", ",", "b"}], "}"}], ",", 
+     RowBox[{"Method", "\[Rule]", "\"\<LevinRule\>\""}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"NumberForm", "[", 
+  RowBox[{"ans", ",", "16"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.708361392427047*^9, 3.708361461891011*^9}, {
+  3.708361574667383*^9, 3.708361578912243*^9}, {3.7083618177061357`*^9, 
+  3.708361912058243*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  InterpretationBox[
+   RowBox[{"\<\"7.156732549568201\"\>", "\[Times]", 
+    SuperscriptBox["10", "\<\"-18\"\>"]}],
+   7.156732549568201*^-18,
+   AutoDelete->True],
+  NumberForm[#, 16]& ]], "Output",
+ CellChangeTimes->{{3.708361427724021*^9, 3.7083614622198143`*^9}, 
+   3.7083615797174892`*^9, {3.708361829034027*^9, 3.7083619122716417`*^9}}]
+}, Open  ]]
+},
+WindowSize->{1060, 696},
+WindowMargins->{{216, Automatic}, {Automatic, 177}},
+FrontEndVersion->"11.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (July 28, \
+2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 1473, 42, 138, "Input"],
+Cell[2034, 64, 280, 8, 32, "Input"],
+Cell[2317, 74, 1114, 32, 96, "Input"],
+Cell[CellGroupData[{
+Cell[3456, 110, 227, 5, 32, "Input"],
+Cell[3686, 117, 175, 2, 32, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3898, 124, 125, 2, 32, "Input"],
+Cell[4026, 128, 1150, 35, 126, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5213, 168, 1158, 31, 159, "Input"],
+Cell[6374, 201, 367, 9, 43, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
