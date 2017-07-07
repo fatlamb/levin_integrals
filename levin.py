@@ -9,6 +9,7 @@ Created on Thu Jul  6 14:46:18 2017
 import numpy as np
 import scipy
 from scipy import special
+from scipy import integrate as sciint
 from math import pi
 
 class LevinIntegrals(object) :
@@ -41,13 +42,6 @@ class LevinIntegrals(object) :
         n1 = n + 1
         return (-1) ** (n % 2) * np.concatenate(([n1], np.sin(n1 * subtheta) / np.sin(subtheta), [(-1) ** (n % 2) * n1]))
 
-		def K2Zero(self,x,l,n):
-		 if l!=0:
-			 return 0.0
-		 else:
-			 return (1.0/(n+1))*x**(n+1)
-	
-	
 
     def compute_K(self, a, b, alpha, beta, l, func) :
         """Computes int(func(k) j_l(alpha k) j_l(beta k), {k, a, b})"""
@@ -220,37 +214,107 @@ class LevinIntegrals(object) :
         # Return the result
         return resultb - resulta
 
+class SphericalBesselIntegrator(object) :
+	"""
+	A wrapper class for LevinIntegrals. Instantiates two LevinIntegrals
+	objects at 21 and 10 collocation points to estimate error (persistence
+	of these objects requires a wrapper class, instead of a function).
+	Also implements case-checking and -handling for alpha=0, beta=0 (for K
+	integrals), or for alpha=0 (for H/I integrals).
+	"""
 
-def KCalc(self, a, b, alpha_tup, beta_tup, l, func):
-	if (alpha_tup[1]==0 and beta_tup[1]==0
+	def __init__(self) :
+		self.integrator_hiprec = LevinIntegrals(21)
+		self.integrator_loprec = LevinIntegrals(10)
+		self.rel_tol = 1e-8
+
+	def KCalc(self, a, b, alpha_tup, beta_tup, l, func):
+		"""
+		Assuming the first entry in the radial coordinate array 
+		is zero. Check to see if both alpha and beta have index 
+		zero and l==0. If so, the collocation method fails because the 
+		differential matrix is singular. But in this case the 
+		covariance is simply the integral of the power spectrum,
+		which is easily done with scipy's built-in quadrature routine. 
+		"""
 	
+		if (alpha_tup[1]==0 and beta_tup[1]==0 and l==0):
+			#Absolute error tolerance
+			intepsrel=1e-12
+			#Compute integral using quadrature.
+			(result,err) = sciint.quad(func,a,b,epsrel=intepsrel)		
+			#Estimate and check relative error.
+			rel_err = abs(err/result)
+			if rel_err > self.rel_tol:
+				#FIXME: handle this error properly!
+				print(str(self.rel_tol)+" Relative Error Bound Exceeded (Quadrature)")
+		else:
+			kresult_hiprec = self.integrator_hiprec.compute_K(a, b, alpha_tup[0], 
+				beta_tup[0], l, func)
+			kresult_loprec = self.integrator_loprec.compute_K(a, b, alpha_tup[0], 
+				beta_tup[0], l, func)
+			result = kresult_hiprec
+			#Estimate and check relative error.
+			err = abs(kresult_hiprec-kresult_loprec)
+			rel_err = abs(err/result)
+			if rel_err > self.rel_tol:
+				#FIXME: handle this error properly!
+				print(str(self.rel_tol)+" Relative Error Bound Exceeded (LevinCollocation)")
+		return result
 
+	def HCalc(self, a, b, alpha_tup, l, func):
+		"""
+		Assuming the first entry in the radial coordinate array 
+		is zero. Check to see if both alpha has index 
+		zero and l==0. See KCalc().
+		"""
+	
+		if (alpha_tup[1]==0 and l==0):
+			#Absolute error tolerance
+			intepsrel=1e-12
+			#Compute integral using quadrature.
+			(result,err) = sciint.quad(func,a,b,epsrel=intepsrel)		
+			#Estimate and check relative error.
+			rel_err = abs(err/result)
+			if rel_err > self.rel_tol:
+				#FIXME: handle this error properly!
+				print(str(self.rel_tol)+" Relative Error Bound Exceeded (Quadrature)")
+		else:
+			hresult_hiprec = self.integrator_hiprec.compute_H(a, b, alpha_tup[0], l, func)
+			hresult_loprec = self.integrator_loprec.compute_H(a, b, alpha_tup[0], l, func)
+			result = hresult_hiprec
+			#Estimate and check relative error.
+			err = abs(hresult_hiprec-hresult_loprec)
+			rel_err = abs(err/result)
+			if rel_err > self.rel_tol:
+				#FIXME: handle this error properly!
+				print(str(self.rel_tol)+" Relative Error Bound Exceeded (LevinCollocation)")
+		return result
 
-
-
-def testfunc(x) :
-    return x**6
-
-integrator = LevinIntegrals(21)
-integrator2 = LevinIntegrals(10)
-
-kresult = integrator.compute_K(1.0, 10.0, 0.0, 0, 1, testfunc)
-#kresult = integrator.compute_K(1.0, 10.0, 0.01, 10.0, 10, testfunc)
-kresult2 = integrator2.compute_K(1.0, 10.0, 0.0, 0, 1, testfunc)
-
-hresult = integrator.compute_H(1.0, 10.0, 0.0, 0, testfunc)
-#hresult = integrator.compute_H(1.0, 10.0, 0.01, 10, testfunc)
-hresult2 = integrator2.compute_H(1.0, 10.0, 0.01, 10, testfunc)
-
-iresult = integrator.compute_I(1.0, 10.0, 0.0, 0, testfunc)
-iresult2 = integrator2.compute_I(1.0, 10.0, 0.01, 10, testfunc)
-
-print("K Integrals")
-print('{:.15e}'.format(kresult))
-print('{:.15e}'.format(kresult2))
-print("H Integrals")
-print('{:.15e}'.format(hresult))
-print('{:.15e}'.format(hresult2))
-print("I Integrals")
-print('{:.15e}'.format(iresult))
-print('{:.15e}'.format(iresult2))
+	def ICalc(self, a, b, alpha_tup, l, func):
+		"""
+		Assuming the first entry in the radial coordinate array 
+		is zero. Check to see if both alpha has index 
+		zero and l==0. See KCalc().
+		"""
+		if (alpha_tup[1]==0 and l==0):
+			#Absolute error tolerance
+			intepsrel=1e-12
+			#Compute integral using quadrature.
+			(result,err) = sciint.quad(func,a,b,epsrel=intepsrel)		
+			#Estimate and check relative error.
+			rel_err = abs(err/result)
+			if rel_err > self.rel_tol:
+				#FIXME: handle this error properly!
+				print(str(self.rel_tol)+" Relative Error Bound Exceeded (Quadrature)")
+		else:
+			iresult_hiprec = self.integrator_hiprec.compute_I(a, b, alpha_tup[0], l, func)
+			iresult_loprec = self.integrator_loprec.compute_I(a, b, alpha_tup[0], l, func)
+			result = iresult_hiprec
+			#Estimate and check relative error.
+			err = abs(iresult_hiprec-iresult_loprec)
+			rel_err = abs(err/result)
+			if rel_err > self.rel_tol:
+				#FIXME: handle this error properly!
+				print(str(self.rel_tol)+" Relative Error Bound Exceeded (LevinCollocation)")
+		return result
