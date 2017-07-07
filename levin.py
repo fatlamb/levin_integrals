@@ -41,6 +41,14 @@ class LevinIntegrals(object) :
         n1 = n + 1
         return (-1) ** (n % 2) * np.concatenate(([n1], np.sin(n1 * subtheta) / np.sin(subtheta), [(-1) ** (n % 2) * n1]))
 
+		def K2Zero(self,x,l,n):
+		 if l!=0:
+			 return 0.0
+		 else:
+			 return (1.0/(n+1))*x**(n+1)
+	
+	
+
     def compute_K(self, a, b, alpha, beta, l, func) :
         """Computes int(func(k) j_l(alpha k) j_l(beta k), {k, a, b})"""
 
@@ -212,19 +220,29 @@ class LevinIntegrals(object) :
         # Return the result
         return resultb - resulta
 
+
+def KCalc(self, a, b, alpha_tup, beta_tup, l, func):
+	if (alpha_tup[1]==0 and beta_tup[1]==0
+	
+
+
+
+
 def testfunc(x) :
     return x**6
 
 integrator = LevinIntegrals(21)
 integrator2 = LevinIntegrals(10)
 
-kresult = integrator.compute_K(1.0, 10.0, 0.01, 10.0, 10, testfunc)
-kresult2 = integrator2.compute_K(1.0, 10.0, 0.01, 10.0, 10, testfunc)
+kresult = integrator.compute_K(1.0, 10.0, 0.0, 0, 1, testfunc)
+#kresult = integrator.compute_K(1.0, 10.0, 0.01, 10.0, 10, testfunc)
+kresult2 = integrator2.compute_K(1.0, 10.0, 0.0, 0, 1, testfunc)
 
-hresult = integrator.compute_H(1.0, 10.0, 0.01, 10, testfunc)
+hresult = integrator.compute_H(1.0, 10.0, 0.0, 0, testfunc)
+#hresult = integrator.compute_H(1.0, 10.0, 0.01, 10, testfunc)
 hresult2 = integrator2.compute_H(1.0, 10.0, 0.01, 10, testfunc)
 
-iresult = integrator.compute_I(1.0, 10.0, 0.01, 10, testfunc)
+iresult = integrator.compute_I(1.0, 10.0, 0.0, 0, testfunc)
 iresult2 = integrator2.compute_I(1.0, 10.0, 0.01, 10, testfunc)
 
 print("K Integrals")
