@@ -224,9 +224,9 @@ class SphericalBesselIntegrator(object) :
 	"""
 
 	def __init__(self) :
-		self.integrator_hiprec = LevinIntegrals(21)
+		self.integrator_hiprec = LevinIntegrals(19)
 		self.integrator_loprec = LevinIntegrals(10)
-		self.rel_tol = 1e-8
+		self.rel_tol = 1e-6
 
 	def KCalc(self, a, b, alpha_tup, beta_tup, l, func):
 		"""
