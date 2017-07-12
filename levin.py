@@ -224,8 +224,15 @@ class SphericalBesselIntegrator(object) :
 	"""
 
 	def __init__(self) :
-		self.integrator_hiprec = LevinIntegrals(19)
-		self.integrator_loprec = LevinIntegrals(10)
+		#Allow three stages of recursive subdivision.
+		self.integrators=[]
+		base_divisions=20
+		self.recursion_power=0
+		self.max_recursion=5
+		for p in range(self.max_recursion):
+			low_div = base_divisions*2**p
+			high_div = 2*low_div-1
+			self.integrators.append([LevinIntegrals(low_div),LevinIntegrals(high_div)])
 		self.rel_tol = 1e-6
 
 	def KCalc(self, a, b, alpha_tup, beta_tup, l, func):
@@ -240,7 +247,7 @@ class SphericalBesselIntegrator(object) :
 	
 		if (alpha_tup[1]==0 and beta_tup[1]==0 and l==0):
 			#Absolute error tolerance
-			intepsrel=1e-12
+			intepsrel=1e-8
 			#Compute integral using quadrature.
 			(result,err) = sciint.quad(func,a,b,epsrel=intepsrel)		
 			#Estimate and check relative error.
@@ -248,18 +255,25 @@ class SphericalBesselIntegrator(object) :
 			if rel_err > self.rel_tol:
 				#FIXME: handle this error properly!
 				print(str(self.rel_tol)+" Relative Error Bound Exceeded (Quadrature)")
+				print rel_err
 		else:
-			kresult_hiprec = self.integrator_hiprec.compute_K(a, b, alpha_tup[0], 
-				beta_tup[0], l, func)
-			kresult_loprec = self.integrator_loprec.compute_K(a, b, alpha_tup[0], 
-				beta_tup[0], l, func)
-			result = kresult_hiprec
+			result_hiprec = self.integrators[self.recursion_power][1].compute_K(a, b, alpha_tup[0], beta_tup[0], l, func)
+			result_loprec = self.integrators[self.recursion_power][0].compute_K(a, b, alpha_tup[0], beta_tup[0], l, func)
+			result = result_hiprec
 			#Estimate and check relative error.
-			err = abs(kresult_hiprec-kresult_loprec)
-			rel_err = abs(err/result)
-			if rel_err > self.rel_tol:
-				#FIXME: handle this error properly!
-				print(str(self.rel_tol)+" Relative Error Bound Exceeded (LevinCollocation)")
+			err = abs(result_hiprec-result_loprec)
+			if err!=0.0:
+				rel_err = abs(err/result)
+			else:
+				rel_err = 0
+			if (rel_err > self.rel_tol):
+				if self.recursion_power<self.max_recursion:
+					self.recursion_power+=1
+					result = self.KCalc(a,b,alpha_tup,beta_tup,l,func)	
+				else:
+					#FIXME: handle this error properly!
+					print(str(self.rel_tol)+"KCalc Max Recursions Exceeded (LevinCollocation)")
+		self.recursion_power=0
 		return result
 
 	def HCalc(self, a, b, alpha_tup, l, func):
@@ -271,7 +285,7 @@ class SphericalBesselIntegrator(object) :
 	
 		if (alpha_tup[1]==0 and l==0):
 			#Absolute error tolerance
-			intepsrel=1e-12
+			intepsrel=1e-8
 			#Compute integral using quadrature.
 			(result,err) = sciint.quad(func,a,b,epsrel=intepsrel)		
 			#Estimate and check relative error.
@@ -280,15 +294,23 @@ class SphericalBesselIntegrator(object) :
 				#FIXME: handle this error properly!
 				print(str(self.rel_tol)+" Relative Error Bound Exceeded (Quadrature)")
 		else:
-			hresult_hiprec = self.integrator_hiprec.compute_H(a, b, alpha_tup[0], l, func)
-			hresult_loprec = self.integrator_loprec.compute_H(a, b, alpha_tup[0], l, func)
-			result = hresult_hiprec
+			result_hiprec = self.integrators[self.recursion_power][1].compute_H(a, b, alpha_tup[0], l, func)
+			result_loprec = self.integrators[self.recursion_power][0].compute_H(a, b, alpha_tup[0], l, func)
+			result = result_hiprec
 			#Estimate and check relative error.
-			err = abs(hresult_hiprec-hresult_loprec)
-			rel_err = abs(err/result)
-			if rel_err > self.rel_tol:
-				#FIXME: handle this error properly!
-				print(str(self.rel_tol)+" Relative Error Bound Exceeded (LevinCollocation)")
+			err = abs(result_hiprec-result_loprec)
+			if err!=0.0:
+				rel_err = abs(err/result)
+			else:
+				rel_err = 0
+			if (rel_err > self.rel_tol):
+				if self.recursion_power<self.max_recursion:
+					self.recursion_power+=1
+					result = self.HCalc(a,b,alpha_tup,l,func)	
+				else:
+					#FIXME: handle this error properly!
+					print(str(self.rel_tol)+"HCalc Max Recursions Exceeded (LevinCollocation)")
+		self.recursion_power=0
 		return result
 
 	def ICalc(self, a, b, alpha_tup, l, func):
@@ -297,9 +319,10 @@ class SphericalBesselIntegrator(object) :
 		is zero. Check to see if both alpha has index 
 		zero and l==0. See KCalc().
 		"""
+	
 		if (alpha_tup[1]==0 and l==0):
 			#Absolute error tolerance
-			intepsrel=1e-12
+			intepsrel=1e-8
 			#Compute integral using quadrature.
 			(result,err) = sciint.quad(func,a,b,epsrel=intepsrel)		
 			#Estimate and check relative error.
@@ -308,13 +331,22 @@ class SphericalBesselIntegrator(object) :
 				#FIXME: handle this error properly!
 				print(str(self.rel_tol)+" Relative Error Bound Exceeded (Quadrature)")
 		else:
-			iresult_hiprec = self.integrator_hiprec.compute_I(a, b, alpha_tup[0], l, func)
-			iresult_loprec = self.integrator_loprec.compute_I(a, b, alpha_tup[0], l, func)
-			result = iresult_hiprec
+			result_hiprec = self.integrators[self.recursion_power][1].compute_I(a, b, alpha_tup[0], l, func)
+			result_loprec = self.integrators[self.recursion_power][0].compute_I(a, b, alpha_tup[0], l, func)
+			result = result_hiprec
 			#Estimate and check relative error.
-			err = abs(iresult_hiprec-iresult_loprec)
-			rel_err = abs(err/result)
-			if rel_err > self.rel_tol:
-				#FIXME: handle this error properly!
-				print(str(self.rel_tol)+" Relative Error Bound Exceeded (LevinCollocation)")
+			err = abs(result_hiprec-result_loprec)
+			if err!=0.0:
+				rel_err = abs(err/result)
+			else:
+				rel_err = 0
+			if (rel_err > self.rel_tol):
+				if self.recursion_power<self.max_recursion:
+					self.recursion_power+=1
+					result = self.ICalc(a,b,alpha_tup,l,func)	
+				else:
+					#FIXME: handle this error properly!
+					print(str(self.rel_tol)+"ICalc Max Recursions Exceeded (LevinCollocation)")
+		self.recursion_power=0
 		return result
+
