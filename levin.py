@@ -228,12 +228,24 @@ class SphericalBesselIntegrator(object) :
 		self.integrators=[]
 		base_divisions=20
 		self.recursion_power=0
-		self.max_recursion=5
-		for p in range(self.max_recursion):
+		self.max_recursion=4
+		for p in range(self.max_recursion+1):
 			low_div = base_divisions*2**p
 			high_div = 2*low_div-1
 			self.integrators.append([LevinIntegrals(low_div),LevinIntegrals(high_div)])
 		self.rel_tol = 1e-6
+
+
+	def k_integrand(self,k,l,alpha,beta,func):
+		res = func(k)*special.spherical_jn(l,k*alpha)*special.spherical_jn(l,k*beta)
+		return res
+	def h_integrand(self,k,l,alpha,func):
+		res = func(k)*special.spherical_jn(l,k*alpha)**2
+		return res
+	def i_integrand(self,k,l,alpha,func):
+		res = func(k)*special.spherical_jn(l,k*alpha)
+		return res
+
 
 	def KCalc(self, a, b, alpha_tup, beta_tup, l, func):
 		"""
@@ -269,10 +281,18 @@ class SphericalBesselIntegrator(object) :
 			if (rel_err > self.rel_tol):
 				if self.recursion_power<self.max_recursion:
 					self.recursion_power+=1
+					print self.recursion_power
+					print rel_err
 					result = self.KCalc(a,b,alpha_tup,beta_tup,l,func)	
 				else:
+					print("KCalc Max Recursions Exceeded (LevinCollocation)")
+					print("Switching to Quadrature")
+					intepsrel=self.rel_tol
+					(result,err) = sciint.quad(self.k_integrand,a,b,args=(l,alpha_tup[0],beta_tup[0],func),epsrel=intepsrel,limit=10000)
+					if abs(err/result)>self.rel_tol:
+						print("KCalc Error Tolerance Exceeded")
 					#FIXME: handle this error properly!
-					print(str(self.rel_tol)+"KCalc Max Recursions Exceeded (LevinCollocation)")
+
 		self.recursion_power=0
 		return result
 
@@ -308,8 +328,14 @@ class SphericalBesselIntegrator(object) :
 					self.recursion_power+=1
 					result = self.HCalc(a,b,alpha_tup,l,func)	
 				else:
+					print("HCalc Max Recursions Exceeded (LevinCollocation)")
+					print("Switching to Quadrature")
+					intepsrel=self.rel_tol
+					(result,err) = sciint.quad(self.h_integrand,a,b,args=(l,alpha_tup[0],func),epsrel=intepsrel,limit=10000)
+					if abs(err/result)>self.rel_tol:
+						print("HCalc Error Tolerance Exceeded")
 					#FIXME: handle this error properly!
-					print(str(self.rel_tol)+"HCalc Max Recursions Exceeded (LevinCollocation)")
+					#FIXME: handle this error properly!
 		self.recursion_power=0
 		return result
 
@@ -345,8 +371,13 @@ class SphericalBesselIntegrator(object) :
 					self.recursion_power+=1
 					result = self.ICalc(a,b,alpha_tup,l,func)	
 				else:
+					print("ICalc Max Recursions Exceeded (LevinCollocation)")
+					print("Switching to Quadrature")
+					intepsrel=self.rel_tol
+					(result,err) = sciint.quad(self.i_integrand,a,b,args=(l,alpha_tup[0],func),epsrel=intepsrel,limit=10000)
+					if abs(err/result)>self.rel_tol:
+						print("ICalc Error Tolerance Exceeded")
 					#FIXME: handle this error properly!
-					print(str(self.rel_tol)+"ICalc Max Recursions Exceeded (LevinCollocation)")
 		self.recursion_power=0
 		return result
 
